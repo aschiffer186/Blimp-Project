@@ -93,19 +93,23 @@ int Channel_convert(const Channel *channel, int value) {
 //          If diff_thrust_val > 0 then the right engine will produce less thrust than the left engine
 //          If diff_thrust_val = 0, then the right and left engines will produce the same amount of thrust
 void calculate_thrust(int thrust_val, int diff_thrust_val, int offset, int & thrust_l, int & thrust_r) {
-    if(diff_thrust_val < offset && -1*diff_thrust_val > -1*offset) {
+    if(diff_thrust_val < offset && diff_thrust_val > -1*offset) {
         thrust_l = thrust_val;
         thrust_r = thrust_val;
     } 
     //Stick is to the left
     else if (diff_thrust_val < -1*offset) {
         thrust_r = thrust_val;
-        thrust_l = thrust_val * (100.0 -diff_thrust_val)/100.0;
+        double range = 100.0  - offset;
+        double offset_thrust_val = -1*diff_thrust_val - offset;
+        thrust_l = thrust_val * (range - offset_thrust_val)/range;
     } 
     //Stick is to the right
     else {
         thrust_l = thrust_val;
-        thrust_r = thrust_val * (100.0 - diff_thrust_val)/100.0;
+        double range = 100.0 - offset;
+        double offset_thrust_val = diff_thrust_val - offset;
+        thrust_r = thrust_val * (range - offset_thrust_val)/range;
     }
 }
 
@@ -218,14 +222,42 @@ void run_test_cases() {
     converted = Channel_convert(channel_arr[3], val);
     assert(converted == 100);
     cout << "Channel 4 test 5 passed!" << endl;
-    cout << "End test cases" << endl;
     cout << endl;
 
     //Test cases for calculate_trust
-    /*
     int offset = 10;
     int thrust_val = 100;
-    */
+    int thrust_l = 0;
+    int thrust_r = 0;
+    calculate_thrust(thrust_val, 0, offset, thrust_l, thrust_r);
+    assert(thrust_r == 100);
+    assert(thrust_l == 100);
+    cout << "Differential thrust test 1 passed!" << endl;
+    calculate_thrust(thrust_val, 7, offset, thrust_l, thrust_r);
+    assert(thrust_r == 100);
+    assert(thrust_l == 100);
+    cout << "Differential thrust test 2 passed!" << endl;
+    calculate_thrust(thrust_val, -7, offset, thrust_l, thrust_r);
+    assert(thrust_r == 100);
+    assert(thrust_l == 100);
+    cout << "Differential thrust test 3 passed!" << endl;
+    calculate_thrust(thrust_val, -100, offset, thrust_l, thrust_r);
+    assert(thrust_r == 100);
+    assert(thrust_l == 0);
+    cout << "Differential thrust test 4 passed!" << endl;
+    calculate_thrust(thrust_val, 100, offset, thrust_l, thrust_r);
+    assert(thrust_r == 0);
+    assert(thrust_l == 100);
+    cout << "Differential thrust test 5 passed!" << endl;
+    calculate_thrust(thrust_val, -55, offset, thrust_l, thrust_r);
+    assert(thrust_r == 100);
+    assert(thrust_l == 50);
+    cout << "Differential thrust test 6 passed!" << endl;
+    calculate_thrust(thrust_val, 55, offset, thrust_l, thrust_r);
+    assert(thrust_r == 50);
+    assert(thrust_l == 100);
+    cout << "Differential thrust test 7 passed!" << endl;
+    cout << "End test cases" << endl;
     //Do not delete this line
     destroy_channels(channel_arr, 4);
 }
