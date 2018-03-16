@@ -2,10 +2,16 @@
 //Once you are there type the following command: g++ --std=c++11 Blimp_test.cpp -o Blimp 
 //To run: type ./Blimp
 
-//This program allows you to see how the input values from the transmitters will be mapped to the
-//output values to the servos and motors
+//README: This program allows you to see how the input values from the transmitters will be mapped to the
+//output values to the servos and motors. Channels 1 and 2 are mapped to the 2 servos. Channel 3 controls
+//thrust and channel 4 controls differential thrust such that moving the stick to the left decreases the
+//thrust of the left motor and vice versa.
 //Servo: full range of rotation occurs from 1000-2000
 //Motor: Idle: 0, Full power: 255
+//Currently this program is memory safe. It is very important that this program not have any dangling pointers
+//or memory leaks. If you edit the sections using the "new" or "delete" keywords, please ensure that you 
+//do not create any errors.
+
 
 //Do not delete----
 //vvvvvvvvvvvvvvvvvv
@@ -148,6 +154,9 @@ void destroy_channels(Channel *channel_arr[], int length) {
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //USES DYNAMIC MEMORY - BE CAREFUL CHANGING (test with valgrind after changing)
+
+//Begin reading input and outputing to servos and motors-------------------------
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 //Can change this code-------------------------------------------------------
 //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
