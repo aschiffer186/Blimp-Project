@@ -291,6 +291,7 @@ void memory_stress_test() {
         initialize_channels(channel_arr, 4, val_arr);
         destroy_channels(channel_arr, 4);
     }
+    cout << "End memory test case" << endl;
 }
 
 int main() {
