@@ -2,6 +2,11 @@
 //Once you are there type the following command: g++ --std=c++11 Blimp_test.cpp -o Blimp 
 //To run: type ./Blimp
 
+//This program allows you to see how the input values from the transmitters will be mapped to the
+//output values to the servos and motors
+//Servo: full range of rotation occurs from 1000-2000
+//Motor: Idle: 0, Full power: 255
+
 //Do not delete----
 //vvvvvvvvvvvvvvvvvv
 #include <string>
@@ -258,6 +263,7 @@ void run_test_cases() {
     assert(thrust_l == 100);
     cout << "Differential thrust test 7 passed!" << endl;
     cout << "End test cases" << endl;
+    cout << endl;
     //Do not delete this line
     destroy_channels(channel_arr, 4);
 }
@@ -269,9 +275,8 @@ int main() {
     //Do NOT delete this line
     initialize_channels(channel_arr, 4, val_arr);
     string str = "";
-    /*
     do {
-        int ch1, ch2, ch3, ch4
+        int ch1, ch2, ch3, ch4;
         cout << "Provide an input for channel 1 ";
         cin >> ch1;
         cout << "Provide an input for channel 2: ";
@@ -282,10 +287,18 @@ int main() {
         cin >> ch4;
         int servo_1_output = Channel_convert(channel_arr[0], ch1);
         int servo_2_output = Channel_convert(channel_arr[1], ch2);
+        cout << "Servo 1 output: " << servo_1_output << endl;
+        cout << "Servo 2 output: " << servo_2_output << endl;
+        int thrust_val = Channel_convert(channel_arr[2], ch3);
+        int diff_thrust_val = Channel_convert(channel_arr[3], ch4);
+        int thrust_l = 0;
+        int thrust_r = 0;
+        calculate_thrust(thrust_val, diff_thrust_val, 10, thrust_l, thrust_r);
+        cout << "Left motor thrust: " << thrust_l << endl;
+        cout << "Right motor thrust: " << thrust_r << endl;
         cout << "Continue providing input: Y/N" << endl;
         cin >> str;
     } while (str != "N");
-    */
     //Do NOT delete this line or place code after this line
     destroy_channels(channel_arr, 4);
 }
