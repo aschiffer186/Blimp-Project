@@ -1,13 +1,14 @@
 //To compile on Mac: Open up terminal and nagivate to director where this file is stored using cd
-//Once you are there type the following command: g++ Blimp_test.cpp -o Blimp_test (no .cpp after the second Blimp_test)
-//To run: type ./Blimp_test
+//Once you are there type the following command: g++ --std=c++11 Blimp_test.cpp -o Blimp 
+//To run: type ./Blimp
 
 //Do not delete----
 //vvvvvvvvvvvvvvvvvv
-
 #include <string>
 #include <iostream>
-
+#include <cassert>
+#include <math.h>
+using namespace std;
 //^^^^^^^^^^^^^^^^^^
 //Do not delete-----
 
@@ -45,40 +46,40 @@ void Channel_init(Channel *channel, int in_min_val, int in_max_val, int in_chann
 //Note: Do NOT use assert statements here
 int Channel_convert(const Channel *channel, int value) {
     //Enforcing requires clause without use of assert statement
-    if(value < channel->min_val) val = channel->min_val;
-    if(value > channel->max_val) val = channel->max_val;
+    if(value < channel->min_val) value = channel->min_val;
+    if(value > channel->max_val) value = channel->max_val;
     double range = channel->max_val - channel->min_val;
     //Control surfaces
     if(channel->channel_num == 1 || channel->channel_num == 2) {
         double scaled = value - channel->min_val;
         double frac = scaled/range;
         double result = frac * 1000;
-        int converted = (int) result + 1000;
+        int converted = (int) (result + 1000);
         return converted;
     } 
     //Thrust
     else if(channel->channel_num == 3) {
         double scaled = value - channel->min_val;
         double frac = scaled/range;
-        int converted = (int) frac * 255;
+        int converted = (int) (frac * 255);
         return converted;
     }
     //Differential Thrust 
     else {
         double middle = (channel->max_val+channel->min_val)/2;
-        if(val == middle)
+        if(value == middle)
             return 0;
-        if(val < middle) {
+        if(value < middle) {
             double scaled = value - channel->min_val;
-            range = middle - channel->min_value;
+            range = middle - channel->min_val;
             double frac = scaled/range;
-            int converted = (int) frac * -100;
+            int converted = (int) round(-100 + frac * 100);
             return converted;
         } else {
             double scaled = value - middle;
             range = channel->max_val - middle;
             double frac = scaled/range;
-            int converted = (int) frac *100;
+            int converted = (int) round(frac *100);
             return converted;
         }
     }
@@ -92,12 +93,12 @@ int Channel_convert(const Channel *channel, int value) {
 //          If diff_thrust_val > 0 then the right engine will produce less thrust than the left engine
 //          If diff_thrust_val = 0, then the right and left engines will produce the same amount of thrust
 void calculate_thrust(int thrust_val, int diff_thrust_val, int offset, int & thrust_l, int & thrust_r) {
-    if(diff_thrust_val < offset && -1*dif_thrust_val > -1*offset) {
+    if(diff_thrust_val < offset && -1*diff_thrust_val > -1*offset) {
         thrust_l = thrust_val;
-        thrust_r = trust_val;
+        thrust_r = thrust_val;
     } 
     //Stick is to the left
-    else if (diff_test_val < -1*offset) {
+    else if (diff_thrust_val < -1*offset) {
         thrust_r = thrust_val;
         thrust_l = thrust_val * (100.0 -diff_thrust_val)/100.0;
     } 
@@ -120,7 +121,7 @@ void initialize_channels(Channel* channel_arr[], int length, const int val_arr[]
         int min_val = val_arr[j++];
         int max_val = val_arr[j++];
         Channel *channel = new Channel;
-        Channel_init(channel, min_val, max_val, i);
+        Channel_init(channel, min_val, max_val, i + 1);
         channel_arr[i] = channel;
     }
 }
@@ -162,7 +163,7 @@ void run_test_cases() {
     converted = Channel_convert(channel_arr[0], val);
     assert(converted == 2000);
     cout << "Channel 1 test 2 passed!" << endl;
-    val = val_arr[0] + (val[1]+val[0])/2;
+    val = (val_arr[1]+val_arr[0])/2;
     converted = Channel_convert(channel_arr[0], val);
     assert(converted == 1500);
     cout << "Channel 1 test 3 passed!" << endl;
@@ -172,11 +173,11 @@ void run_test_cases() {
     converted = Channel_convert(channel_arr[1], val);
     assert(converted == 1000);
     cout << "Channel 2 test 1 passed!" << endl;
-    val = vall_arr[3];
+    val = val_arr[3];
     converted = Channel_convert(channel_arr[1], val);
     assert(converted == 2000);
     cout << "Channel 2 test 2 passed!" << endl;
-    val = val_arr[2] + (val[3]+val[2])/2;
+    val = (val_arr[3]+val_arr[2])/2;
     converted = Channel_convert(channel_arr[1], val);
     assert(converted == 1500);
     cout << "Channel 2 test 3 passed!" << endl;
@@ -190,40 +191,41 @@ void run_test_cases() {
     converted = Channel_convert(channel_arr[2], val);
     assert(converted == 255);
     cout << "Channel 3 test 2 passed!" << endl;
-    val = val_arr[4] + (val[5]+val[4])/2;
+    val = (val_arr[5]+val_arr[4])/2;
     converted = Channel_convert(channel_arr[2], val);
     assert(converted == 127 || converted == 128);
     cout << "Channel 3 test 3 passed!" << endl;
 
     //Test cases for channel 4
     val = val_arr[6];
-    converted = Channel_converted(channel_arr[3], val);
-    assert(converted == 100);
+    converted = Channel_convert(channel_arr[3], val);
+    assert(converted == -100);
     cout << "Channel 4 test 1 passed!" << endl;
     int middle = (val_arr[6] + val_arr[7])/2;
     val = (val_arr[6]+middle)/2;
-    converted = Channel_converted(channel_arr[3], val);
+    converted = Channel_convert(channel_arr[3], val);
     assert(converted == -50);
     cout << "Channel 4 test 2 passed!" << endl;
     val = middle;
-    converted = Channel_converted(channel_arr[3], val);
+    converted = Channel_convert(channel_arr[3], val);
     assert(converted == 0);
     cout << "Channel 4 test 3 passed!" << endl;
     val = (middle + val_arr[7])/2;
-    converted = Channel_converted(channel_arr[3], val);
+    converted = Channel_convert(channel_arr[3], val);
     assert(converted == 50);
     cout << "Channel 4 test 4 passed!" << endl;
-    val = val_arr[7]/2;
-    converted = Channel_converted(channel_arr[3], val);
+    val = val_arr[7];
+    converted = Channel_convert(channel_arr[3], val);
     assert(converted == 100);
     cout << "Channel 4 test 5 passed!" << endl;
     cout << "End test cases" << endl;
     cout << endl;
 
     //Test cases for calculate_trust
+    /*
     int offset = 10;
     int thrust_val = 100;
-
+    */
     //Do not delete this line
     destroy_channels(channel_arr, 4);
 }
@@ -235,6 +237,7 @@ int main() {
     //Do NOT delete this line
     initialize_channels(channel_arr, 4, val_arr);
     string str = "";
+    /*
     do {
         int ch1, ch2, ch3, ch4
         cout << "Provide an input for channel 1 ";
@@ -245,12 +248,12 @@ int main() {
         cin >> ch3;
         cout << "Provide an input for channel 4: ";
         cin >> ch4;
-
-        
-
+        int servo_1_output = Channel_convert(channel_arr[0], ch1);
+        int servo_2_output = Channel_convert(channel_arr[1], ch2);
         cout << "Continue providing input: Y/N" << endl;
         cin >> str;
     } while (str != "N");
+    */
     //Do NOT delete this line or place code after this line
     destroy_channels(channel_arr, 4);
 }
