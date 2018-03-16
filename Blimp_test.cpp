@@ -296,6 +296,7 @@ void memory_stress_test() {
 
 int main() {
     run_test_cases();
+    memory_stress_test();
     //Array to store channels
     Channel * channel_arr[4];
     //Do NOT delete this line
