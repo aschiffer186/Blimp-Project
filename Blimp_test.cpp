@@ -287,7 +287,7 @@ void run_test_cases() {
 //Please do not edit this test case or transfer it to arduino sketch
 void memory_stress_test() {
     Channel * channel_arr[4];
-    for(int i = 1; i <= 1000; ++i) {
+    for(int i = 1; i <= 1; ++i) {
         initialize_channels(channel_arr, 4, val_arr);
         destroy_channels(channel_arr, 4);
     }
@@ -295,9 +295,10 @@ void memory_stress_test() {
 }
 
 int main() {
-    run_test_cases();
+    //run_test_cases();
     memory_stress_test();
     //Array to store channels
+    /*
     Channel * channel_arr[4];
     //Do NOT delete this line
     initialize_channels(channel_arr, 4, val_arr);
@@ -328,5 +329,6 @@ int main() {
     } while (str != "N");
     //Do NOT delete this line or place code after this line
     destroy_channels(channel_arr, 4);
+    */
 }
 
