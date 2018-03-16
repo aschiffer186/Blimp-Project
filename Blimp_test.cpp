@@ -160,9 +160,13 @@ void destroy_channels(Channel *channel_arr[], int length) {
 
 //Can change this code-------------------------------------------------------
 //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
 //Test values for channel values. Format: channel 1 - min value, channel 1 - max value, 
 //channel 2 - min value, channel 2 - max value, etc. 
 const int val_arr[8] = {1000, 2000, 1100, 1900, 800, 2100, 910, 2200};
+
+//Code below here should NOT be transferred to the Arduino sketch-------------------------
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 //Test cases for code to test the scaling each channel. Will not be in final Arduino program
 //This will always be called to test any code changes made to the scaling function aka
@@ -275,6 +279,18 @@ void run_test_cases() {
     cout << endl;
     //Do not delete this line
     destroy_channels(channel_arr, 4);
+}
+
+//Tests to ensure that dynamic memory works correctly,
+//and to see how much dynamic memory is taken up over a long period of time
+//This test case should be called with valgrind for best results
+//Please do not edit this test case or transfer it to arduino sketch
+void memory_stress_test() {
+    Channel * channel_arr[4];
+    for(int i = 1; i <= 1000; ++i) {
+        initialize_channels(channel_arr, 4, val_arr);
+        destroy_channels(channel_arr, 4);
+    }
 }
 
 int main() {
