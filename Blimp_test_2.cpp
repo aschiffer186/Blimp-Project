@@ -1,6 +1,6 @@
 //To compile on Mac: Open up terminal and nagivate to director where this file is stored using cd
-//Once you are there type the following command: g++ --std=c++11 Blimp_test.cpp -o Blimp 
-//To run: type ./Blimp
+//Once you are there type the following command: g++ --std=c++11 Blimp_test_2.cpp -o Blimp2 
+//To run: type ./Blimp2
 
 //README: This program allows you to see how the input values from the transmitters will be mapped to the
 //output values to the servos and motors. Channels 1 and 2 are mapped to the 2 servos. Channel 3 controls
@@ -9,9 +9,7 @@
 //Servo: full range of rotation occurs from 1000-2000
 //Motor: Idle: 0, Full power: 255
 //Currently this program is memory safe. It is very important that this program not have any dangling pointers
-//or memory leaks. If you edit the sections using the "new" or "delete" keywords, please ensure that you 
-//do not create any errors.
-
+//or memory leaks. If you use dynamic memory, please be careful
 
 //Do not delete----
 //vvvvvvvvvvvvvvvvvv
@@ -48,6 +46,7 @@ struct Channel {
 //Note: Do NOT use assert statements. Assert statements can stop code from executing, which is bad
 void Channel_init(Channel *channel, int in_min_val, int in_min_stick_val, int in_max_stick_val, int in_max_val, int in_channel_num) {
     //Enforcing requires clause without use of assert statement
+    //DO NOT modify
     if(in_min_val < 0) in_min_val = 0;
     if(in_min_val >= in_max_val) in_min_val = in_max_val - 1;
     if(in_max_val <= in_min_val) in_max_val = in_min_val + 1;
@@ -62,8 +61,71 @@ void Channel_init(Channel *channel, int in_min_val, int in_min_stick_val, int in
 //          channel's minimum <= value <= channel's maximum value
 //EFFECTS:  Scales the input value to be outputed to the output channel (servo/motor) controlled by the
 //          given input channel
-//Note: Do NOT use assert statements here
+//Note: Do NOT use assert statements. Assert statements can stopc code from executing, which is bad
 int Channel_convert(const Channel *channel, int value) {
+    //Enforcing requires clause without use of assert statement
+    //DO NOT modify
+    if(value < channel->min_val) value = channel->min_val;
+    if(value > channel->max_val) value = channel->max_val;
+    double range = channel->max_val - channel->min_val;
+    //Control surfaces
+    if(channel->channel_num == 1 || channel->channel_num == 2) {
+        if(value < channel->min_stick_val) {
+
+        } else if (value >= channel->min_stick_val && value <= channel->max_stick_val) {
+
+        } else {
+
+        }
+        double scaled = value - channel->min_val;
+        double frac = scaled/range;
+        double result = frac * 1000;
+        int converted = (int) (result + 1000);
+        return converted;
+    } 
+    //Thrust
+    else if(channel->channel_num == 3) {
+        if(value < channel->min_stick_val) {
+            
+        } else if (value >= channel->min_stick_val && value <= channel->max_stick_val) {
+
+        } else {
+            
+        }
+        double scaled = value - channel->min_val;
+        double frac = scaled/range;
+        int converted = (int) (frac * 255);
+        return converted;
+    }
+    //Differential Thrust 
+    else {
+        double middle = (channel->max_val+channel->min_val)/2;
+        if(value == middle)
+            return 0;
+        if(value < middle) {
+            double scaled = value - channel->min_val;
+            range = middle - channel->min_val;
+            double frac = scaled/range;
+            int converted = (int) round(-100 + frac * 100);
+            return converted;
+        } else {
+            double scaled = value - middle;
+            range = channel->max_val - middle;
+            double frac = scaled/range;
+            int converted = (int) round(frac *100);
+            return converted;
+        }
+    }
+}
+
+//Helper function for scaling input to output
+//REQUIRES: *channel points to a valid channel
+//          channel's minimum <= value <= channel's maximum value
+//EFFECTS:  Scales the input value to be outputed to the output channel (servo/motor) controlled by the
+//          given input channel as if stick and trim had same effect
+//Note: This is intended to be called in Channel_convert only (but the requires clause will still be enforced)
+//Note: Do NOT use assert statements. Assert statements can stopc code from executing, which is bad.
+int Channel_conver_no_trim(const Channel *channel, int value) {
     //Enforcing requires clause without use of assert statement
     if(value < channel->min_val) value = channel->min_val;
     if(value > channel->max_val) value = channel->max_val;
@@ -104,7 +166,7 @@ int Channel_convert(const Channel *channel, int value) {
     }
 }
 
-//REQUIRES: 0 th 
+//REQUIRES: thrust_val >= 0 
 //          -100 <= diff_thurst_val <= 100
 //MODIFIES: thrust_l and thrust_r
 //EFFECTS:  Calculates the thrust of each engine based on the values read in from channels 3 and 4.
@@ -137,7 +199,8 @@ void calculate_thrust(int thrust_val, int diff_thrust_val, int offset, int & thr
 //REQUIRES: length = 4
 //          length of val_arr be 16
 //EFFECTS: Initializes all 4 input channels. Serves as a pseudo-constructor for the program
-//Note: Uses new keyword length times, so delete keyword should be called length times somewhere else
+//Note: Does not use the new keyword. This technically doesn't follow the program style being 
+//used (C-style ADT), but the Arduino is a memory limited environment so less memory > bad style
 void initialize_channels(Channel * channel_arr, int length, const int * val_arr) {
     int vi = 0;
     for(int i = 0; i < length; ++i) {
@@ -146,7 +209,7 @@ void initialize_channels(Channel * channel_arr, int length, const int * val_arr)
         int min_stick_val = val_arr[vi++];
         int max_stick_val = val_arr[vi++];
         int max_val = val_arr[vi++];
-        Channel_init(&c, min_val, min_stick_val, max_stick_val, max_val, i);
+        Channel_init(&c, min_val, min_stick_val, max_stick_val, max_val, i+1);
         channel_arr[i] = c;
     }
 }
@@ -159,8 +222,8 @@ void initialize_channels(Channel * channel_arr, int length, const int * val_arr)
 //Can change this code-------------------------------------------------------
 //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-//Test values for channel values. Format: channel 1 - min value, channel 1 - max value, 
-//channel 2 - min value, channel 2 - max value, etc. 
+//Array of channel values in microseconds. Format: channel 1 - min value, channel 1 - min stick value, 
+//channel 1 - max stick value, channel 1 - max value, etc.
 const int val_arr[16] = {1000, 1100, 1900, 2000, 1100, 1300, 1700, 1900, 800, 900, 2000, 2100, 910, 1010, 2100, 2200};
 
 //Code below here should NOT be transferred to the Arduino sketch-------------------------
@@ -180,6 +243,18 @@ int main() {
     Channel c = channel_arr[0];
     cout << c.min_val << endl;
     cout << c.max_val << endl;
+    int servo_1_output = Channel_convert(&(channel_arr[0]), 0);
+    int servo_2_output = Channel_convert(&(channel_arr[1]), 0);
+    cout << "Servo 1 output: " << servo_1_output << endl;
+    cout << "Servo 2 output: " << servo_2_output << endl;
+    int thrust_val = Channel_convert(&(channel_arr[2]), 0);
+    int diff_thrust_val = Channel_convert(&(channel_arr[3]), 0);
+    int thrust_l = 0;
+    int thrust_r = 0;
+    calculate_thrust(thrust_val, diff_thrust_val, 10, thrust_l, thrust_r);
+    cout << "Left motor thrust: " << thrust_l << endl;
+    cout << "Right motor thrust: " << thrust_r << endl;
+    /*
     do {
         int ch1, ch2, ch3, ch4;
         cout << "Provide an input for channel 1 ";
@@ -204,5 +279,6 @@ int main() {
         cout << "Continue providing input: Y/N" << endl;
         cin >> str;
     } while (str == "Y");
+    */
 }
 

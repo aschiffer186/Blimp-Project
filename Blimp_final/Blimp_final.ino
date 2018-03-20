@@ -1,3 +1,4 @@
+/*
 #include<math.h>
 #include<Servo.h>
 //^^^^^^^^^^^^^^^^^^
@@ -231,3 +232,4 @@ void loop() {
   analogWrite(motorboard_pin_2, thrust_r);
   //delay(750);
 }
+*/

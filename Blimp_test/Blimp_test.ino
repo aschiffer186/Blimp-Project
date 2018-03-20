@@ -1,3 +1,4 @@
+/*
 #include <Servo.h>
 
 const int ch3Pin = 10; //channel 2
@@ -102,5 +103,5 @@ int convertChannelValue(const Channel *channel, double input_value) {
   double frac = input_value/range;
   return (int) (frac * 1000) + 1000;
 }
-
+*/
 

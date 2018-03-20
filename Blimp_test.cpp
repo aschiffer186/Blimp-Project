@@ -96,7 +96,7 @@ int Channel_convert(const Channel *channel, int value) {
     }
 }
 
-//REQUIRES: 0 th 
+//REQUIRES: thrust_val >= 0 
 //          -100 <= diff_thurst_val <= 100
 //MODIFIES: thrust_l and thrust_r
 //EFFECTS:  Calculates the thrust of each engine based on the values read in from channels 3 and 4.
